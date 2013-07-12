@@ -86,7 +86,7 @@ bool GamePlay::init()
     
     this->schedule(schedule_selector(GamePlay::updateMoveDown), 0.1);
     this->schedule(schedule_selector(GamePlay::updateAdd), 0.1);
-    this->schedule(schedule_selector(GamePlay::update), 1/10);
+    this->schedule(schedule_selector(GamePlay::update), 1/60);
     return true;
 }
 void GamePlay::menuCloseCallback(cocos2d::CCObject *pSender) {
@@ -105,9 +105,16 @@ void GamePlay::addArraySquare() {
     int cols = tableGame->getCols();
     CCPoint pointTable = tableGame->getPoint();
     int dem = 0;
+    int k = 1;
     for (int i = 1; i <= rows; i++) {
         for (int j = 1; j <= cols; j++) {
             int category = rand() % 7;
+            while (category == k) {
+                category = rand() % 7;
+                if (category == k) {
+                     k = category;
+                }
+            }
             char tileName[7][20];
             strcpy(tileName[0], "Candy1");
             strcpy(tileName[1], "Candy2");
@@ -152,6 +159,32 @@ void GamePlay::updateMoveDown(float dt) {
 }
 void GamePlay::update(float dt) {
     this->checkTable();
+    CCObject *i;
+    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+        Square * sq = (Square*) i;
+        if (this->checkSquareMove(sq) == true) {
+            arraySquareRemove->addObject(sq);
+        }
+    }
+
+    if (arraySquareRemove->count() > 0) {
+        CCObject *i;
+        CCARRAY_FOREACH(arraySquareRemove, i) {
+            Square *sq = (Square *)i;
+            CCParticleFlower * flower = CCParticleFlower::create();
+            flower->retain();
+            flower->setPosition(sq->getPosition());
+            flower->setTexture( CCTextureCache::sharedTextureCache()->addImage("stars.png") );
+            flower->setDuration(0.5f);
+            flower->setScale(0.5f);
+            flower->setLife(0.3f);
+            flower->setTotalParticles(10);
+            this->addChild(flower, 10);
+            tableGame->getArraySquare()->removeObject(sq);
+            this->removeChild(sq, true);
+        }
+    }
+    arraySquareRemove->removeAllObjects();
 }
 void GamePlay::updateRemove(float dt) {
     
@@ -215,7 +248,8 @@ void GamePlay::updateAdd(float dt) {
         sq->setScaleX(sx);
         sq->setScaleY(sy);
         CCPoint p = ccp(pointTable.x + (2 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);        sq->setPosition(p);
+                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+        sq->setPosition(p);
         sq->setPoint(p);
         sq->moveDown();
         tableGame->getArraySquare()->addObject(sq);
@@ -299,40 +333,117 @@ void GamePlay::updateAdd(float dt) {
 }
 void GamePlay::ccTouchesBegan(cocos2d::CCSet * touch,cocos2d::CCEvent* event)
 {
+    touchmove = false;
 	CCTouch *touch1 = (CCTouch*)(touch->anyObject());
 	CCPoint p2 = touch1->getLocationInView();
 	touchLocation=CCDirector::sharedDirector()->convertToGL(p2);
-    
-    CCObject *i;
-    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
-        Square * sq = (Square*) i;
-        int kc = ccpDistance(touchLocation, sq->getPosition());
-        if (kc < sq->getContentSize().width/2 - 5) {
-            if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
-                sq->setSelected(true);
-                sqSelected = sq;
-                CCSprite *star = CCSprite::create("Star.png");
-                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
-                sqSelected->addChild(star);
-                CCLog("tag1: %i, row: %i, col : %i, category: %i",sqSelected->getTag(),
-                      sqSelected->getRow(), sqSelected->getCol(), sqSelected->getCategory());
-                break;
-            }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)){
-                sq->setSelected(true);
-                sqSelected2 = sq;
-                
-                CCSprite *star = CCSprite::create("Star.png");
-                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
-                sqSelected2->addChild(star);
-                CCLog("tag2: %i, row: %i, col : %i, category: %i",sqSelected2->getTag(),
-                      sqSelected2->getRow(), sqSelected2->getCol(), sqSelected2->getCategory());
-                break;
-            } 
+    Square * sq1 = (Square*)tableGame->getArraySquare()->objectAtIndex(1);
+    int H = (int)(tableGame->getHeight() / 7);
+    int W = (int)(tableGame->getWith() / 7);
+    int px = (int)(tableGame->getPoint().x +  sq1->getContentSize().width * sq1->getScaleX());
+    int py = (int)(tableGame->getPoint().y +  sq1->getContentSize().height * sq1->getScaleY());
+    int row = (int)((touchLocation.x - px) / W ) + 1;
+    int col = (int)((touchLocation.y - py) / H ) + 1;
+    int tag = (row - 1) * 7 + col;
+    if (this->getChildByTag(tag) != NULL) {
+        if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
+            sqSelected = (Square*)this->getChildByTag(tag);
+            sqSelected->setSelected(true);
+        }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)) {
+            sqSelected2 = (Square*)this->getChildByTag(tag);
+            sqSelected2->setSelected(true);
+
         }
+        
     }
+//    CCObject *i;
+//    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+//        Square * sq = (Square*) i;
+//        int kc = ccpDistance(touchLocation, sq->getPosition());
+//        if (kc < sq->getContentSize().width/2) {
+//            if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
+//                sq->setSelected(true);
+//                sqSelected = sq;
+//                CCSprite *star = CCSprite::create("Star.png");
+//                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
+//                sqSelected->addChild(star);
+//                CCLog("tag1: %i, row: %i, col : %i, category: %i",sqSelected->getTag(),
+//                      sqSelected->getRow(), sqSelected->getCol(), sqSelected->getCategory());
+//                break;
+//            }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)){
+//                sq->setSelected(true);
+//                sqSelected2 = sq;
+//                
+//                CCSprite *star = CCSprite::create("Star.png");
+//                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
+//                sqSelected2->addChild(star);
+//                CCLog("tag2: %i, row: %i, col : %i, category: %i",sqSelected2->getTag(),
+//                      sqSelected2->getRow(), sqSelected2->getCol(), sqSelected2->getCategory());
+//                break;
+//            } 
+//        }
+//    }
 }
-void GamePlay::ccTouchesMoved(cocos2d::CCSet* touch,cocos2d::CCEvent* event)
+void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
 {
+    if (sqSelected) {
+        CCTouch *touch = (CCTouch*)touches->anyObject();
+        CCPoint p2 = touch->getLocationInView();
+        CCPoint touchpoint = CCDirector::sharedDirector()->convertToGL(p2);
+        
+        CCRect touchRect = CCRect(touchpoint.x, touchpoint.y, 10, 10);
+        
+        CCRect swipeRightRect = CCRectMake((touchLocation.x + 40), touchLocation.y, 80, 20);
+        CCRect swipeLeftRect = CCRectMake((touchLocation.x - 40), touchLocation.y, 80, 20);
+        CCRect swipeUpRect = CCRectMake(touchLocation.x, touchLocation.y + (40), 20, 80);
+        CCRect swipeDownRect = CCRectMake(touchLocation.x, touchLocation.y - (40), 20, 80);
+        int tag = sqSelected->getTag();
+        if ((touchpoint.x - touchLocation.x > 10) && touchRect.intersectsRect(swipeRightRect) && touchmove == false) {
+//            CCLog(" phai");
+            touchmove = true ;
+            if (this->getChildByTag(tag + 7) != NULL && sqSelected->getRow() < 7) {
+                Square * sq = (Square *)this->getChildByTag(tag + 7);
+                sqSelected->moveRight();
+                sqSelected->setSelected(false);
+                sq->moveLeft();
+            }
+        }
+        else if ((touchLocation.x - touchpoint.x > 10) && touchRect.intersectsRect(swipeLeftRect) && touchmove == false) {
+//            CCLog(" trai");
+            touchmove = true ;
+            if (this->getChildByTag(tag - 7) != NULL && sqSelected->getRow() > 1) {
+                Square * sq = (Square *)this->getChildByTag(tag - 7);
+                sqSelected->moveLeft();
+                sqSelected->setSelected(false);
+                sq->moveRight();
+            }
+        }
+        else if ((touchpoint.y - touchLocation.y > 10) && touchRect.intersectsRect(swipeUpRect) && touchmove == false) {
+//           CCLog(" tren");
+           touchmove = true ;
+            if (this->getChildByTag(tag + 1) != NULL && sqSelected->getCol() < 7) {
+                Square * sq = (Square *)this->getChildByTag(tag + 1);
+                sqSelected->moveTop();
+                sqSelected->setSelected(false);
+                sq->moveDown();
+            }
+        }
+        else if ((touchLocation.y - touchpoint.y > 10) && touchRect.intersectsRect(swipeDownRect) && touchmove == false) {
+//            CCLog(" duoi");
+            touchmove = true ;
+            if (this->getChildByTag(tag - 1) != NULL && sqSelected->getCol() > 1) {
+                Square * sq = (Square *)this->getChildByTag(tag - 1);
+                sqSelected->moveDown();
+                sqSelected->setSelected(false);
+                sq->moveTop();
+            }
+        }
+        else if (!touchRect.intersectsRect(swipeRightRect) && !touchRect.intersectsRect(swipeLeftRect)
+                 && !touchRect.intersectsRect(swipeUpRect) && !touchRect.intersectsRect(swipeDownRect)){
+            
+        }
+            
+    }
 }
 void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
 {
@@ -416,6 +527,9 @@ void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
                 }
             }
         }
+    }else if (touchmove == true) {
+        sqSelected = NULL;
+        
     }
 }
 void GamePlay::moveBack(cocos2d::CCNode *node, int k) {
@@ -644,23 +758,24 @@ void GamePlay::checkTable() {
         d = 0;
     }
     
-    CCObject *i;
-    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
-        Square *sq = (Square*)i;
-        if (sq->getRemove() == true) {
-            arraySquareRemove->addObject(sq);
-        }
-    }
+//    CCObject *i;
+//    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+//        Square *sq = (Square*)i;
+//        if (sq->getRemove() == true) {
+//            arraySquareRemove->addObject(sq);
+//        }
+//    }
+//    
+//    if (arraySquareRemove->count() > 0) {
+//        CCObject *i;
+//        CCARRAY_FOREACH(arraySquareRemove, i) {
+//            Square *sq = (Square *)i;
+//            tableGame->getArraySquare()->removeObject(sq);
+//            this->removeChild(sq, true);
+//        }
+//        arraySquareRemove->removeAllObjects();
+//    }
     
-    if (arraySquareRemove->count() > 0) {
-        CCObject *i;
-        CCARRAY_FOREACH(arraySquareRemove, i) {
-            Square *sq = (Square *)i;
-            tableGame->getArraySquare()->removeObject(sq);
-            this->removeChild(sq, true);
-        }
-        arraySquareRemove->removeAllObjects();
-    }
     if (point3 != 0 || point4 != 0 || point5 != 0) {
         CCLog("point col 3 - %i, 4 - %i, 5 - %i",point3, point4, point5);
     }

@@ -9,7 +9,7 @@ class GameManager : public cocos2d::CCObject
 {
 private:
     CCSize s = CCDirector::sharedDirector()->getWinSize();
-    TableGame *tableGame = new TableGame(ccp(0, -20), s.width * 3 / 5, s.width * 3 / 5, 7, 7);
+    TableGame *tableGame = new TableGame(ccp(0, 0), s.width * 3 / 6, s.width * 3 / 6, 7, 7);
     //Constructor
     GameManager();
 
