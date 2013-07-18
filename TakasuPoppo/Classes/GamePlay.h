@@ -50,9 +50,12 @@ public:
     void updateRemove(float dt);
     void updateAdd(float dt);
     void update(float dt);
+    void updateTime(float dt);
+    void updateMoveBack(float dt);
     void checkMove();
     void checkRemoveAfterAdd(float dt) ;
     bool checkSquareMove(Square *sq);
+    bool checkSquareMoveAble(Square *sq);
     void moveBack(cocos2d::CCNode *node, int k);
     void checkTable();
     int asb(int a);
@@ -63,7 +66,19 @@ private:
     bool touchmove = false;
     Square *sqSelected;
     Square *sqSelected2;
+    Square *sqSelected1;
+    Square *sqSelected3;
+    int directionMoveSqSelected; // 1 : dow, 2 :top, 3 :right, 4 :left 
     CCArray *arraySquareRemove;
     CCArray *arraySquareMoveDown;
+    int arrayCategoryRemove[7];
+    int _threes;
+    int _fours;
+    int _fives;
+    int _times;
+    CCLabelTTF *_labelTime;
+    CCLabelTTF *_labelThrees;
+    CCLabelTTF *_labelFours;
+    CCLabelTTF *_labelFives;
 };
 #endif // __HELLOWORLD_SCENE_H__

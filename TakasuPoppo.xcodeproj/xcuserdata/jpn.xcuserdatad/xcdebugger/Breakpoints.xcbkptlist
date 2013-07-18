@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395207202.453617"
+         timestampString = "395823675.973575"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "102"
-         endingLineNumber = "102"
+         startingLineNumber = "121"
+         endingLineNumber = "121"
          landmarkName = "GamePlay::addArraySquare()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395823675.973575"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "118"
-         endingLineNumber = "118"
+         startingLineNumber = "137"
+         endingLineNumber = "137"
          landmarkName = "GamePlay::addArraySquare()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -34,11 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395833757.330724"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "155"
-         endingLineNumber = "155"
+         startingLineNumber = "174"
+         endingLineNumber = "174"
          landmarkName = "GamePlay::updateMoveDown(float dt)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -47,24 +47,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395835800.894987"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "327"
-         endingLineNumber = "327"
-         landmarkName = "GamePlay::updateAdd(float dt)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "546"
-         endingLineNumber = "546"
+         startingLineNumber = "820"
+         endingLineNumber = "820"
          landmarkName = "GamePlay::checkSquareMove(Square *sq)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -73,11 +60,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395833757.330724"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "195"
-         endingLineNumber = "195"
+         startingLineNumber = "218"
+         endingLineNumber = "218"
          landmarkName = "GamePlay::updateRemove(float dt)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -86,11 +73,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395835800.894987"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "743"
-         endingLineNumber = "743"
+         startingLineNumber = "1017"
+         endingLineNumber = "1017"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -99,11 +86,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395835800.894987"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "752"
-         endingLineNumber = "752"
+         startingLineNumber = "1026"
+         endingLineNumber = "1026"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -112,11 +99,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395835800.894987"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "672"
-         endingLineNumber = "672"
+         startingLineNumber = "946"
+         endingLineNumber = "946"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -125,12 +112,64 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395317929.003652"
+         timestampString = "395835800.894987"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "680"
-         endingLineNumber = "680"
+         startingLineNumber = "954"
+         endingLineNumber = "954"
          landmarkName = "GamePlay::checkTable()"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
+         timestampString = "395835800.894987"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "817"
+         endingLineNumber = "817"
+         landmarkName = "GamePlay::checkSquareMoveAble(Square *sq)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
+         timestampString = "395833757.330724"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "486"
+         endingLineNumber = "486"
+         landmarkName = "GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
+         timestampString = "395833757.330724"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "489"
+         endingLineNumber = "489"
+         landmarkName = "GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
+         timestampString = "395833757.330724"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "400"
+         endingLineNumber = "400"
+         landmarkName = "GamePlay::ccTouchesBegan(cocos2d::CCSet * touch,cocos2d::CCEvent* event)"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

@@ -48,6 +48,7 @@ CCScene* GamePlay::scene()
 // on "init" you need to initialize your instance
 bool GamePlay::init()
 {
+    srandom(time(NULL));
     //////////////////////////////
     // 1. super init first
     if ( !CCLayer::init() )
@@ -75,18 +76,37 @@ bool GamePlay::init()
     CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
     pMenu->setPosition( CCPointZero );
     this->addChild(pMenu, 1);
-    
+     
     //------------------------------------Game----------------------------------
-    srandom(time(NULL));
+    _threes = 0;
+    _fours = 0;
+    _fives = 0;
+    _times = 0;
+    _labelThrees = CCLabelTTF::create("0", "Times New Roman", 30);
+    _labelThrees->setPosition(ccp(size.width * 3/4, size.height / 3));
+    this->addChild(_labelThrees, 10);
+    _labelFours = CCLabelTTF::create("0", "Times New Roman", 30);
+    _labelFours->setPosition(ccp(size.width * 3/4, size.height / 3 + 30));
+    this->addChild(_labelFours, 10);
+    _labelFives = CCLabelTTF::create("0", "Times New Roman", 30);
+    _labelFives->setPosition(ccp(size.width * 3/4, size.height / 3 + 60));
+    this->addChild(_labelFives, 10);
+    
+    _labelTime = CCLabelTTF::create("0", "Times New Roman", 30);
+    _labelTime->setPosition(ccp(size.width * 3/4, size.height / 3 + 90));
+    this->addChild(_labelTime, 10);
+    
     arraySquareMoveDown = new CCArray();
     arraySquareRemove = new CCArray();
     tableGame = GameManager::sharedGameManager()->getTableGame();
     tableGame->setArraySquare(new CCArray());
     this->addArraySquare();
     
-    this->schedule(schedule_selector(GamePlay::updateMoveDown), 0.1);
-    this->schedule(schedule_selector(GamePlay::updateAdd), 0.1);
-    this->schedule(schedule_selector(GamePlay::update), 1/60);
+    this->schedule(schedule_selector(GamePlay::updateMoveDown), 1/6);
+    this->schedule(schedule_selector(GamePlay::updateAdd), 1/20);
+    this->schedule(schedule_selector(GamePlay::update), 1/20);
+    this->schedule(schedule_selector(GamePlay::updateTime), 1);
+    this->schedule(schedule_selector(GamePlay::updateMoveBack), 1/60);
     return true;
 }
 void GamePlay::menuCloseCallback(cocos2d::CCObject *pSender) {
@@ -98,7 +118,6 @@ void GamePlay::menuCloseCallback(cocos2d::CCObject *pSender) {
 }
 //----------------------Game----------------------------------------------------
 void GamePlay::addArraySquare() {
-    srandom(time(NULL));
     float with = tableGame->getWith() / tableGame->getCols() * 1.0f;
     float height = tableGame->getHeight() / tableGame->getRows() * 1.0f;
     int rows = tableGame->getRows();
@@ -152,7 +171,8 @@ void GamePlay::updateMoveDown(float dt) {
     CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
         Square * sq = (Square*)i;
         int tag = sq->getTag();
-        if (sq->getCol() > 1 && this->getChildByTag(tag - 1) == NULL) {
+        if (sq->getCol() > 1 && this->getChildByTag(tag - 1) == NULL &&
+            tableGame->getArraySquare()->count() < 49) {
             sq->moveDown();
         }
     }
@@ -160,9 +180,12 @@ void GamePlay::updateMoveDown(float dt) {
 void GamePlay::update(float dt) {
     this->checkTable();
     CCObject *i;
+    int  j = -1;
     CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
         Square * sq = (Square*) i;
         if (this->checkSquareMove(sq) == true) {
+            j++;
+            arrayCategoryRemove[j] = sq->getCategory();
             arraySquareRemove->addObject(sq);
         }
     }
@@ -176,9 +199,9 @@ void GamePlay::update(float dt) {
             flower->setPosition(sq->getPosition());
             flower->setTexture( CCTextureCache::sharedTextureCache()->addImage("stars.png") );
             flower->setDuration(0.5f);
-            flower->setScale(0.5f);
+            flower->setScale(1.5f);
             flower->setLife(0.3f);
-            flower->setTotalParticles(10);
+            flower->setTotalParticles(5);
             this->addChild(flower, 10);
             tableGame->getArraySquare()->removeObject(sq);
             this->removeChild(sq, true);
@@ -207,11 +230,23 @@ void GamePlay::checkRemoveAfterAdd(float dt) {
         }
     }
 }
+void GamePlay::updateTime(float dt) {
+    _times = _times + 1;
+    char stTime[20] = {0};
+    sprintf(stTime, "Time: %i", _times);
+    _labelTime->setString(stTime);
+}
 void GamePlay::updateAdd(float dt) {
-    srandom(time(NULL));
     float with = tableGame->getWith() / tableGame->getCols() * 1.0f;
     float height = tableGame->getHeight() / tableGame->getRows() * 1.0f;
-    int category = rand() % 7;
+    int category = rand() % 7 ;
+    for (int i = 0; i < ((int)(&arrayCategoryRemove+1)-(int)arrayCategoryRemove) /
+         (sizeof(arrayCategoryRemove[0])); i++) {
+        if (category == arrayCategoryRemove[i]) {
+            category = rand() % ( rand() % ( rand() % 7 + 1) + 1);
+            
+        }
+    }
     char tileName[7][20];
     strcpy(tileName[0], "Candy1");
     strcpy(tileName[1], "Candy2");
@@ -233,7 +268,6 @@ void GamePlay::updateAdd(float dt) {
         sq->setScaleY(sy);
         CCPoint p = ccp(pointTable.x + (1 + 0.5f) * sq->getContentSize().width * sx,
                         pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-
         sq->setPosition(p);
         sq->setPoint(p);
         sq->moveDown();
@@ -333,56 +367,58 @@ void GamePlay::updateAdd(float dt) {
 }
 void GamePlay::ccTouchesBegan(cocos2d::CCSet * touch,cocos2d::CCEvent* event)
 {
+    directionMoveSqSelected = 0;
     touchmove = false;
 	CCTouch *touch1 = (CCTouch*)(touch->anyObject());
 	CCPoint p2 = touch1->getLocationInView();
 	touchLocation=CCDirector::sharedDirector()->convertToGL(p2);
     Square * sq1 = (Square*)tableGame->getArraySquare()->objectAtIndex(1);
-    int H = (int)(tableGame->getHeight() / 7);
-    int W = (int)(tableGame->getWith() / 7);
-    int px = (int)(tableGame->getPoint().x +  sq1->getContentSize().width * sq1->getScaleX());
-    int py = (int)(tableGame->getPoint().y +  sq1->getContentSize().height * sq1->getScaleY());
-    int row = (int)((touchLocation.x - px) / W ) + 1;
-    int col = (int)((touchLocation.y - py) / H ) + 1;
-    int tag = (row - 1) * 7 + col;
-    if (this->getChildByTag(tag) != NULL) {
-        if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
-            sqSelected = (Square*)this->getChildByTag(tag);
-            sqSelected->setSelected(true);
-        }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)) {
-            sqSelected2 = (Square*)this->getChildByTag(tag);
-            sqSelected2->setSelected(true);
-
-        }
+    if (touchLocation.x >= tableGame->getPoint().x + sq1->getContentSize().width / 2 &&
+        touchLocation.x <= tableGame->getPoint().x + tableGame->getWith() + sq1->getContentSize().width &&
+        touchLocation.y >= tableGame->getPoint().y + sq1->getContentSize().height / 2 &&
+        touchLocation.y <= tableGame->getPoint().y + tableGame->getHeight()  + sq1->getContentSize().height) {
         
+        int H = (int)(tableGame->getHeight() / 7);
+        int W = (int)(tableGame->getWith() / 7);
+        int px = (int)(tableGame->getPoint().x +  sq1->getContentSize().width * sq1->getScaleX());
+        int py = (int)(tableGame->getPoint().y +  sq1->getContentSize().height * sq1->getScaleY());
+        int row = (int)((touchLocation.x - px) / W ) + 1;
+        int col = (int)((touchLocation.y - py) / H ) + 1;
+        int tag = (row - 1) * 7 + col;
+        sqSelected1 = (Square*)this->getChildByTag(tag);
+        if (this->getChildByTag(tag) != NULL) {
+            if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
+                sqSelected = (Square*)this->getChildByTag(tag);
+                sqSelected->setSelected(true);
+                CCSprite *star = CCSprite::create("Star.png");
+                star->setPosition(ccp(sqSelected->getContentSize().width/2, sqSelected->getContentSize().height/2));
+                sqSelected->addChild(star);
+            }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)) {
+                sqSelected2 = (Square*)this->getChildByTag(tag);
+                sqSelected2->setSelected(true);
+                CCSprite *star = CCSprite::create("Star.png");
+                star->setPosition(ccp(sqSelected2->getContentSize().width/2, sqSelected2->getContentSize().height/2));
+                sqSelected2->addChild(star);
+            }
+            
+        }
+
     }
-//    CCObject *i;
-//    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
-//        Square * sq = (Square*) i;
-//        int kc = ccpDistance(touchLocation, sq->getPosition());
-//        if (kc < sq->getContentSize().width/2) {
-//            if (sqSelected == NULL || (sqSelected != NULL && sqSelected->getSelected() == false)) {
-//                sq->setSelected(true);
-//                sqSelected = sq;
-//                CCSprite *star = CCSprite::create("Star.png");
-//                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
-//                sqSelected->addChild(star);
-//                CCLog("tag1: %i, row: %i, col : %i, category: %i",sqSelected->getTag(),
-//                      sqSelected->getRow(), sqSelected->getCol(), sqSelected->getCategory());
-//                break;
-//            }else if (sqSelected2 == NULL || (sqSelected2 != NULL && sqSelected2->getSelected() == false)){
-//                sq->setSelected(true);
-//                sqSelected2 = sq;
-//                
-//                CCSprite *star = CCSprite::create("Star.png");
-//                star->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
-//                sqSelected2->addChild(star);
-//                CCLog("tag2: %i, row: %i, col : %i, category: %i",sqSelected2->getTag(),
-//                      sqSelected2->getRow(), sqSelected2->getCol(), sqSelected2->getCategory());
-//                break;
-//            } 
-//        }
-//    }
+        CCObject *i;
+        CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+            Square * sq = (Square*) i;
+            if (this->checkSquareMoveAble(sq) == true) {
+                CCParticleFlower * flower = CCParticleFlower::create();
+                flower->retain();
+                flower->setPosition(ccp(sq->getContentSize().width/2, sq->getContentSize().height/2));
+                flower->setTexture( CCTextureCache::sharedTextureCache()->addImage("stars.png") );
+                flower->setDuration(3.5f);
+                flower->setScale(0.5f);
+                flower->setLife(0.3f);
+                flower->setTotalParticles(10);
+                sq->addChild(flower, 10);
+            }
+        }
 }
 void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
 {
@@ -403,9 +439,10 @@ void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
             touchmove = true ;
             if (this->getChildByTag(tag + 7) != NULL && sqSelected->getRow() < 7) {
                 Square * sq = (Square *)this->getChildByTag(tag + 7);
-                sqSelected->moveRight();
-                sqSelected->setSelected(false);
-                sq->moveLeft();
+                sqSelected1->moveRight();
+                directionMoveSqSelected = 3;
+                sqSelected3 = sq;
+                sqSelected3->moveLeft();
             }
         }
         else if ((touchLocation.x - touchpoint.x > 10) && touchRect.intersectsRect(swipeLeftRect) && touchmove == false) {
@@ -413,9 +450,10 @@ void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
             touchmove = true ;
             if (this->getChildByTag(tag - 7) != NULL && sqSelected->getRow() > 1) {
                 Square * sq = (Square *)this->getChildByTag(tag - 7);
-                sqSelected->moveLeft();
-                sqSelected->setSelected(false);
-                sq->moveRight();
+                sqSelected1->moveLeft();
+                directionMoveSqSelected = 4;
+                sqSelected3 = sq;
+                sqSelected3->moveRight();
             }
         }
         else if ((touchpoint.y - touchLocation.y > 10) && touchRect.intersectsRect(swipeUpRect) && touchmove == false) {
@@ -423,9 +461,10 @@ void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
            touchmove = true ;
             if (this->getChildByTag(tag + 1) != NULL && sqSelected->getCol() < 7) {
                 Square * sq = (Square *)this->getChildByTag(tag + 1);
-                sqSelected->moveTop();
-                sqSelected->setSelected(false);
-                sq->moveDown();
+                sqSelected1->moveTop();
+                directionMoveSqSelected = 2;
+                sqSelected3 = sq;
+                sqSelected3->moveDown();
             }
         }
         else if ((touchLocation.y - touchpoint.y > 10) && touchRect.intersectsRect(swipeDownRect) && touchmove == false) {
@@ -433,16 +472,12 @@ void GamePlay::ccTouchesMoved(cocos2d::CCSet* touches, cocos2d::CCEvent* event)
             touchmove = true ;
             if (this->getChildByTag(tag - 1) != NULL && sqSelected->getCol() > 1) {
                 Square * sq = (Square *)this->getChildByTag(tag - 1);
-                sqSelected->moveDown();
-                sqSelected->setSelected(false);
-                sq->moveTop();
+                sqSelected1->moveDown();
+                directionMoveSqSelected = 1;
+                sqSelected3 = sq;
+                sqSelected3->moveTop();
             }
         }
-        else if (!touchRect.intersectsRect(swipeRightRect) && !touchRect.intersectsRect(swipeLeftRect)
-                 && !touchRect.intersectsRect(swipeUpRect) && !touchRect.intersectsRect(swipeDownRect)){
-            
-        }
-            
     }
 }
 void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
@@ -461,11 +496,13 @@ void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
                 if (sqSelected->getCol() - sqSelected2->getCol() == -1) {
                     sqSelected->moveTop();
                     sqSelected2->moveDown();
+                    directionMoveSqSelected = 2;
                     k1 = 2;
                     k2 = 1;
                 }else if (sqSelected->getCol() - sqSelected2->getCol() == 1) {
                     sqSelected2->moveTop();
                     sqSelected->moveDown();
+                    directionMoveSqSelected = 1;
                     k1 = 1;
                     k2 = 2;
                 }
@@ -473,11 +510,13 @@ void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
                 if (sqSelected2->getRow() - sqSelected->getRow() == -1) {
                     sqSelected2->moveRight();
                     sqSelected->moveLeft();
+                    directionMoveSqSelected = 4;
                     k1 = 3;
                     k2 = 4;
                 }else if (sqSelected2->getRow() - sqSelected->getRow() == 1) {
                     sqSelected->moveRight();
                     sqSelected2->moveLeft();
+                    directionMoveSqSelected = 3;
                     k1 = 4;
                     k2 = 3;
                 }
@@ -527,10 +566,77 @@ void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
                 }
             }
         }
-    }else if (touchmove == true) {
-        sqSelected = NULL;
-        
     }
+    else if (touchmove == true) {
+        sqSelected = NULL;
+        sqSelected2 = NULL;
+    }
+}
+void GamePlay::updateMoveBack(float dt) {
+    if ((sqSelected1 != NULL && sqSelected3 != NULL)) {
+        if (this->checkSquareMove(sqSelected1) == false && this->checkSquareMove(sqSelected3) == false) {
+            switch (directionMoveSqSelected) {
+                case 1:
+                    sqSelected1->moveTop();
+                    sqSelected3->moveDown();
+                    break;
+                case 2:
+                    sqSelected1->moveDown();
+                    sqSelected3->moveTop();
+                    break;
+                case 3:
+                    sqSelected3->moveRight();
+                    sqSelected1->moveLeft();
+                    break;
+                case 4:
+                    sqSelected1->moveRight();
+                    sqSelected3->moveLeft();
+                    break;
+                default:
+                    break;
+            }
+        }
+        sqSelected3 = NULL;
+        sqSelected1 = NULL;
+        CCObject *i;
+        CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+            Square * sq = (Square*) i;
+            //if (sq->getSelected() == true)
+            {
+                //sq->setSelected(false);
+                sq->removeAllChildren();
+            }
+        }
+        return;
+    }
+
+//    if ((sqSelected != NULL && sqSelected2 != NULL) &&
+//        sqSelected->getSelected() == true && sqSelected2->getSelected() == true ) {
+//        if (this->checkSquareMove(sqSelected) == false && this->checkSquareMove(sqSelected2) == false) {
+//            switch (directionMoveSqSelected) {
+//                case 1:
+//                    sqSelected->moveTop();
+//                    sqSelected2->moveDown();
+//                    break;
+//                case 2:
+//                    sqSelected->moveDown();
+//                    sqSelected2->moveTop();
+//                    break;
+//                case 3:
+//                    sqSelected2->moveRight();
+//                    sqSelected->moveLeft();
+//                    break;
+//                case 4:
+//                    sqSelected->moveRight();
+//                    sqSelected2->moveLeft();
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//        sqSelected2 = NULL;
+//        sqSelected = NULL;
+//    }
 }
 void GamePlay::moveBack(cocos2d::CCNode *node, int k) {
     Square *sq = (Square*)node;
@@ -540,6 +646,174 @@ void GamePlay::moveBack(cocos2d::CCNode *node, int k) {
         else if (k == 3) sq->moveLeft();
         else if (k == 4) sq->moveRight();
     }
+}
+bool GamePlay::checkSquareMoveAble(Square *sq) {
+    bool t = false;
+    int category = sq->getCategory();
+    int tag = sq->getTag();
+    int row = sq->getRow();
+    int col = sq->getCol();
+    // 1 
+    if (tag -14 >= 1 && tag - 21 >= 1 && row >= 4) {
+        if (this->getChildByTag(tag - 14) != NULL && this->getChildByTag(tag - 21) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 14);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 21);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 2
+    if (tag - 7 + 1 >= 1 && tag - 7 - 7 + 1 >= 1 && row >= 3 && col < 7) {
+        if (this->getChildByTag(tag - 7 + 1) != NULL && this->getChildByTag(tag - 7 - 7  + 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 - 7 + 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 3
+    if (tag + 2 <= 49 && tag + 3 <= 49 && col <= 4 ) {
+        if (this->getChildByTag(tag  + 3) != NULL && this->getChildByTag(tag  + 2) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag  + 3);
+            Square * sq2 = (Square*) this->getChildByTag(tag  + 2);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 4
+    if (tag - 7 + 1 <= 49 && tag - 7 - 1 >= 1 && col > 1 && col < 7) {
+        if (this->getChildByTag(tag - 7 + 1) != NULL && this->getChildByTag(tag - 7 - 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 - 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+   // 5
+    if (tag + 14 <= 49 && tag + 21 <= 49 && row < 5) {
+        if (this->getChildByTag(tag + 14) != NULL && this->getChildByTag(tag + 21) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 14);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 21);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 6
+    if (tag + 7 - 1 <= 49 && tag + 7 - 2 <= 49 && col > 2 && row < 7) {
+        if (this->getChildByTag(tag + 7 - 1) != NULL && this->getChildByTag(tag + 7 - 2) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 - 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 7 - 2);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 7
+    if (tag - 2 >= 1 && tag - 3 >= 1 && col >=4  ) {
+        if (this->getChildByTag(tag  - 2) != NULL && this->getChildByTag(tag  - 3) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag  - 2);
+            Square * sq2 = (Square*) this->getChildByTag(tag  - 3);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 8
+    if (tag - 7 - 1 >= 1 && tag - 7 - 2 >= 1 && row >= 2 && col >= 3) {
+        if (this->getChildByTag(tag - 7 - 1) != NULL && this->getChildByTag(tag - 7 - 2) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 7 - 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 - 2);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 9
+    if (tag - 7 - 1 >= 1 && tag - 7 - 7 - 1 >= 1 && col >= 2 && row > 1) {
+        if (this->getChildByTag(tag - 7 - 1) != NULL && this->getChildByTag(tag - 7 - 7 - 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 7 - 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 - 7 - 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 10
+    if (tag - 7 + 1 >= 1 && tag - 7 + 2 >= 1 && row >= 2 && col <= 5) {
+        if (this->getChildByTag(tag - 7 + 2) != NULL && this->getChildByTag(tag - 7 + 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag - 7 + 2);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 + 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 11
+    if (tag + 7 + 1 <= 49 && tag + 7 + 7 + 1 <= 49 && row <= 5 && col < 7) {
+        if (this->getChildByTag(tag + 7 + 7 + 1) != NULL && this->getChildByTag(tag + 7 + 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 + 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 7 + 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 12
+    if (tag + 7 - 1 <= 49 && tag + 7 + 7 - 1 <= 49 && col > 1 && row <= 5) {
+        if (this->getChildByTag( tag + 7 - 1) != NULL && this->getChildByTag(tag + 7 + 7 - 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 - 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 7 + 7 - 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 13
+    if (tag + 7 + 1 <= 49 && tag - 7 + 1 <= 49 && col < 7 && row <= 6 && row > 1) {
+        if (this->getChildByTag( tag + 7 + 1) != NULL && this->getChildByTag(tag - 7 + 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 + 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 14
+    if (tag + 7 + 1 <= 49 && tag + 7 + 2 <= 49 && col <= 5 && row < 7) {
+        if (this->getChildByTag( tag + 7 + 1) != NULL && this->getChildByTag(tag + 7  + 2) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 7  + 2);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 15
+    if (tag + 7 + 1 <= 49 && tag + 7 - 1 <= 49 && col < 7 && col > 1 && row < 7) {
+        if (this->getChildByTag( tag + 7 + 1) != NULL && this->getChildByTag(tag + 7 - 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 + 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag + 7 - 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    // 16
+    if (tag - 7 - 1 >= 1 && tag + 7 - 1 <= 49 && row < 7 && row > 1 && col > 1) {
+        if (this->getChildByTag( tag + 7 - 1) != NULL && this->getChildByTag(tag - 7 - 1) != NULL) {
+            Square * sq1 = (Square*) this->getChildByTag(tag + 7 - 1);
+            Square * sq2 = (Square*) this->getChildByTag(tag - 7 - 1);
+            if (sq1->getCategory() == category && sq2->getCategory() == category) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 bool GamePlay::checkSquareMove(Square *sq) {
     bool t = false;
@@ -778,6 +1052,20 @@ void GamePlay::checkTable() {
     
     if (point3 != 0 || point4 != 0 || point5 != 0) {
         CCLog("point col 3 - %i, 4 - %i, 5 - %i",point3, point4, point5);
+        _threes = _threes + point3;
+        _fours = _fours + point4;
+        _fives = _fives + point5;
+        char stThrees[20] = {0};
+        sprintf(stThrees, "threes: %i", _threes);
+        _labelThrees->setString(stThrees);
+        
+        char stFours[20] = {0};
+        sprintf(stFours, "fours: %i", _fours);
+        _labelFours->setString(stFours);
+        
+        char stFives[20] = {0};
+        sprintf(stFives, "fives: %i", _fives);
+        _labelFives->setString(stFives);
     }
 }
 int GamePlay::asb(int a) {

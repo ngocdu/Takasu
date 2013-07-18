@@ -68,7 +68,7 @@ void Square::moveDown() {
         int tag = this->getTag() - 1 ;
         this->setTag(tag);
         CCPoint p = ccp(this->getPosition().x, this->getPosition().y - this->getContentSize().height * sy);
-        CCMoveTo * move = CCMoveTo::create(0.2f, p);
+        CCMoveTo * move = CCMoveTo::create(0.1f/2, p);
         this->runAction(move);
     }
 }
@@ -85,7 +85,7 @@ void Square::moveTop() {
         int tag = this->getTag() + 1 ;
         this->setTag(tag);
         CCPoint p = ccp(this->getPosition().x, this->getPosition().y + this->getContentSize().height * sy);
-        CCMoveTo * move = CCMoveTo::create(0.2f, p);
+        CCMoveTo * move = CCMoveTo::create(0.1f/2, p);
         this->runAction(move);
     }
 }
@@ -103,7 +103,7 @@ void Square::moveLeft() {
         this->setTag(tag);
 
         CCPoint p = ccp(this->getPosition().x - this->getContentSize().width * sx, this->getPosition().y );
-        CCMoveTo * move = CCMoveTo::create(0.2f, p);
+        CCMoveTo * move = CCMoveTo::create(0.1f/2, p);
         this->runAction(move);
     }
 }
@@ -120,7 +120,7 @@ void Square::moveRight() {
         int tag = this->getTag() + 7 ;
         this->setTag(tag);
         CCPoint p = ccp(this->getPosition().x + this->getContentSize().width * sx, this->getPosition().y );
-        CCMoveTo * move = CCMoveTo::create(0.2f, p);
+        CCMoveTo * move = CCMoveTo::create(0.1f/2, p);
         this->runAction(move);
     }
 }
