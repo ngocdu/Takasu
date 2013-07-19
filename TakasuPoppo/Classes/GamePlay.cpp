@@ -102,11 +102,11 @@ bool GamePlay::init()
     tableGame->setArraySquare(new CCArray());
     this->addArraySquare();
     
-    this->schedule(schedule_selector(GamePlay::updateMoveDown), 1/6);
-    this->schedule(schedule_selector(GamePlay::updateAdd), 1/20);
-    this->schedule(schedule_selector(GamePlay::update), 1/20);
+    //this->schedule(schedule_selector(GamePlay::updateMoveDown), 1/6);
+    //this->schedule(schedule_selector(GamePlay::updateAdd), 1/20);
+    this->schedule(schedule_selector(GamePlay::update), 1/50);
     this->schedule(schedule_selector(GamePlay::updateTime), 1);
-    this->schedule(schedule_selector(GamePlay::updateMoveBack), 1/60);
+    //this->schedule(schedule_selector(GamePlay::updateMoveBack), 1/20);
     return true;
 }
 void GamePlay::menuCloseCallback(cocos2d::CCObject *pSender) {
@@ -167,18 +167,92 @@ void GamePlay::addArraySquare() {
     }
 }
 void GamePlay::updateMoveDown(float dt) {
-    CCObject *i;
-    CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
-        Square * sq = (Square*)i;
-        int tag = sq->getTag();
-        if (sq->getCol() > 1 && this->getChildByTag(tag - 1) == NULL &&
-            tableGame->getArraySquare()->count() < 49) {
-            sq->moveDown();
+    this->moveDown();
+}
+void GamePlay::moveBack() {
+    if ((sqSelected1 != NULL && sqSelected3 != NULL)) {
+        if (this->checkSquareMove(sqSelected1) == false && this->checkSquareMove(sqSelected3) == false) {
+            switch (directionMoveSqSelected) {
+                case 1:
+                    sqSelected1->moveTop();
+                    sqSelected3->moveDown();
+                    break;
+                case 2:
+                    sqSelected1->moveDown();
+                    sqSelected3->moveTop();
+                    break;
+                case 3:
+                    sqSelected3->moveRight();
+                    sqSelected1->moveLeft();
+                    break;
+                case 4:
+                    sqSelected1->moveRight();
+                    sqSelected3->moveLeft();
+                    break;
+                default:
+                    break;
+            }
+        }
+        sqSelected3 = NULL;
+        sqSelected1 = NULL;
+        CCObject *i;
+        CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+            Square * sq = (Square*) i;
+            //if (sq->getSelected() == true)
+            {
+                //sq->setSelected(false);
+                sq->removeAllChildren();
+            }
+        }
+        return;
+    }
+    
+    //    if ((sqSelected != NULL && sqSelected2 != NULL) &&
+    //        sqSelected->getSelected() == true && sqSelected2->getSelected() == true ) {
+    //        if (this->checkSquareMove(sqSelected) == false && this->checkSquareMove(sqSelected2) == false) {
+    //            switch (directionMoveSqSelected) {
+    //                case 1:
+    //                    sqSelected->moveTop();
+    //                    sqSelected2->moveDown();
+    //                    break;
+    //                case 2:
+    //                    sqSelected->moveDown();
+    //                    sqSelected2->moveTop();
+    //                    break;
+    //                case 3:
+    //                    sqSelected2->moveRight();
+    //                    sqSelected->moveLeft();
+    //                    break;
+    //                case 4:
+    //                    sqSelected->moveRight();
+    //                    sqSelected2->moveLeft();
+    //                    break;
+    //                default:
+    //                    break;
+    //            }
+    //        }
+    //        sqSelected2 = NULL;
+    //        sqSelected = NULL;
+    //    }
+
+}
+void GamePlay::updateMoveBack(float dt) {
+    this->moveBack();
+}
+void GamePlay::moveDown() {
+    if (tableGame->getArraySquare()->count() <= 49 + 7)
+    {
+        CCObject *i;
+        CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
+            Square * sq = (Square*)i;
+            int tag = sq->getTag();
+            if (sq->getCol() > 1 && this->getChildByTag(tag - 1) == NULL) {
+                sq->moveDown();
+            }
         }
     }
 }
-void GamePlay::update(float dt) {
-    this->checkTable();
+void GamePlay::remove() {
     CCObject *i;
     int  j = -1;
     CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
@@ -189,7 +263,7 @@ void GamePlay::update(float dt) {
             arraySquareRemove->addObject(sq);
         }
     }
-
+    
     if (arraySquareRemove->count() > 0) {
         CCObject *i;
         CCARRAY_FOREACH(arraySquareRemove, i) {
@@ -208,6 +282,13 @@ void GamePlay::update(float dt) {
         }
     }
     arraySquareRemove->removeAllObjects();
+}
+void GamePlay::update(float dt) {
+    this->moveBack();
+    this->checkTable();
+    this->remove();
+    this->add();
+    this->moveDown();
 }
 void GamePlay::updateRemove(float dt) {
     
@@ -236,134 +317,140 @@ void GamePlay::updateTime(float dt) {
     sprintf(stTime, "Time: %i", _times);
     _labelTime->setString(stTime);
 }
-void GamePlay::updateAdd(float dt) {
-    float with = tableGame->getWith() / tableGame->getCols() * 1.0f;
-    float height = tableGame->getHeight() / tableGame->getRows() * 1.0f;
-    int category = rand() % 7 ;
-    for (int i = 0; i < ((int)(&arrayCategoryRemove+1)-(int)arrayCategoryRemove) /
-         (sizeof(arrayCategoryRemove[0])); i++) {
-        if (category == arrayCategoryRemove[i]) {
-            category = rand() % ( rand() % ( rand() % 7 + 1) + 1);
-            
+void GamePlay::add() {
+    //if (tableGame->getArraySquare()->count() < 49)
+    {
+        float with = tableGame->getWith() / tableGame->getCols() * 1.0f;
+        float height = tableGame->getHeight() / tableGame->getRows() * 1.0f;
+        int category = rand() % 7 ;
+        for (int i = 0; i < ((int)(&arrayCategoryRemove+1)-(int)arrayCategoryRemove) /
+             (sizeof(arrayCategoryRemove[0])); i++) {
+            if (category == arrayCategoryRemove[i]) {
+                category = rand() % ( rand() % ( rand() % 7 + 1) + 1);
+                
+            }
+        }
+        char tileName[7][20];
+        strcpy(tileName[0], "Candy1");
+        strcpy(tileName[1], "Candy2");
+        strcpy(tileName[2], "Candy3");
+        strcpy(tileName[3], "Candy4");
+        strcpy(tileName[4], "Candy5");
+        strcpy(tileName[5], "Candy6");
+        strcpy(tileName[6], "Candy7");
+        char spriteName[100];
+        CCPoint pointTable = tableGame->getPoint();
+        sprintf(spriteName, "%s.png", tileName[category]);
+        if (this->getChildByTag(7) == NULL) {
+            Square *sq = new Square(category, 1, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (1 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 7);
+        }else if(this->getChildByTag(14) == NULL) {
+            Square *sq = new Square(category, 2, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (2 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 14);
+        } else if (this->getChildByTag(21) == NULL) {
+            Square *sq = new Square(category, 3, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (3 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 21);
+        }else if (this->getChildByTag(28) == NULL) {
+            Square *sq = new Square(category, 4, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (4 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 28);
+        }else if (this->getChildByTag(35) == NULL) {
+            Square *sq = new Square(category, 5, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (5 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 35);
+        }else if (this->getChildByTag(42) == NULL) {
+            Square *sq = new Square(category, 6, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (6 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 42);
+        }else if (this->getChildByTag(49) == NULL) {
+            Square *sq = new Square(category, 7, 8);
+            sq->setSelected(false);
+            sq->initWithFile(spriteName);
+            float sx = with / sq->getContentSize().width;
+            float sy = height / sq->getContentSize().height;
+            sq->setScaleX(sx);
+            sq->setScaleY(sy);
+            CCPoint p = ccp(pointTable.x + (7 + 0.5f) * sq->getContentSize().width * sx,
+                            pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
+            sq->setPosition(p);
+            sq->setPoint(p);
+            sq->moveDown();
+            tableGame->getArraySquare()->addObject(sq);
+            this->addChild(sq, 1, 49);
         }
     }
-    char tileName[7][20];
-    strcpy(tileName[0], "Candy1");
-    strcpy(tileName[1], "Candy2");
-    strcpy(tileName[2], "Candy3");
-    strcpy(tileName[3], "Candy4");
-    strcpy(tileName[4], "Candy5");
-    strcpy(tileName[5], "Candy6");
-    strcpy(tileName[6], "Candy7");
-    char spriteName[100];
-    CCPoint pointTable = tableGame->getPoint();
-    sprintf(spriteName, "%s.png", tileName[category]);
-    if (this->getChildByTag(7) == NULL) {
-        Square *sq = new Square(category, 1, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (1 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 7);
-    }else if(this->getChildByTag(14) == NULL) {
-        Square *sq = new Square(category, 2, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (2 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 14);
-    } else if (this->getChildByTag(21) == NULL) {
-        Square *sq = new Square(category, 3, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (3 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 21);
-    }else if (this->getChildByTag(28) == NULL) {
-        Square *sq = new Square(category, 4, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (4 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 28);
-    }else if (this->getChildByTag(35) == NULL) {
-        Square *sq = new Square(category, 5, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (5 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 35);
-    }else if (this->getChildByTag(42) == NULL) {
-        Square *sq = new Square(category, 6, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (6 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 42);
-    }else if (this->getChildByTag(49) == NULL) {
-        Square *sq = new Square(category, 7, 8);
-        sq->setSelected(false);
-        sq->initWithFile(spriteName);
-        float sx = with / sq->getContentSize().width;
-        float sy = height / sq->getContentSize().height;
-        sq->setScaleX(sx);
-        sq->setScaleY(sy);
-        CCPoint p = ccp(pointTable.x + (7 + 0.5f) * sq->getContentSize().width * sx,
-                        pointTable.y + (8 + 0.5f) * sq->getContentSize().height * sy);
-        sq->setPosition(p);
-        sq->setPoint(p);
-        sq->moveDown();
-        tableGame->getArraySquare()->addObject(sq);
-        this->addChild(sq, 1, 49);
-    }
+}
+void GamePlay::updateAdd(float dt) {
+    this->add();
 }
 void GamePlay::ccTouchesBegan(cocos2d::CCSet * touch,cocos2d::CCEvent* event)
 {
@@ -572,72 +659,7 @@ void GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)
         sqSelected2 = NULL;
     }
 }
-void GamePlay::updateMoveBack(float dt) {
-    if ((sqSelected1 != NULL && sqSelected3 != NULL)) {
-        if (this->checkSquareMove(sqSelected1) == false && this->checkSquareMove(sqSelected3) == false) {
-            switch (directionMoveSqSelected) {
-                case 1:
-                    sqSelected1->moveTop();
-                    sqSelected3->moveDown();
-                    break;
-                case 2:
-                    sqSelected1->moveDown();
-                    sqSelected3->moveTop();
-                    break;
-                case 3:
-                    sqSelected3->moveRight();
-                    sqSelected1->moveLeft();
-                    break;
-                case 4:
-                    sqSelected1->moveRight();
-                    sqSelected3->moveLeft();
-                    break;
-                default:
-                    break;
-            }
-        }
-        sqSelected3 = NULL;
-        sqSelected1 = NULL;
-        CCObject *i;
-        CCARRAY_FOREACH(tableGame->getArraySquare(), i) {
-            Square * sq = (Square*) i;
-            //if (sq->getSelected() == true)
-            {
-                //sq->setSelected(false);
-                sq->removeAllChildren();
-            }
-        }
-        return;
-    }
 
-//    if ((sqSelected != NULL && sqSelected2 != NULL) &&
-//        sqSelected->getSelected() == true && sqSelected2->getSelected() == true ) {
-//        if (this->checkSquareMove(sqSelected) == false && this->checkSquareMove(sqSelected2) == false) {
-//            switch (directionMoveSqSelected) {
-//                case 1:
-//                    sqSelected->moveTop();
-//                    sqSelected2->moveDown();
-//                    break;
-//                case 2:
-//                    sqSelected->moveDown();
-//                    sqSelected2->moveTop();
-//                    break;
-//                case 3:
-//                    sqSelected2->moveRight();
-//                    sqSelected->moveLeft();
-//                    break;
-//                case 4:
-//                    sqSelected->moveRight();
-//                    sqSelected2->moveLeft();
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//        sqSelected2 = NULL;
-//        sqSelected = NULL;
-//    }
-}
 void GamePlay::moveBack(cocos2d::CCNode *node, int k) {
     Square *sq = (Square*)node;
     if (arraySquareRemove->count() > 0) {

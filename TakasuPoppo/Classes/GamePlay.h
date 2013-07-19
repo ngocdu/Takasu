@@ -47,11 +47,15 @@ public:
 	virtual void ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event);
     void addArraySquare();
     void updateMoveDown(float dt);
+    void moveDown();
     void updateRemove(float dt);
+    void remove();
     void updateAdd(float dt);
+    void add();
     void update(float dt);
     void updateTime(float dt);
     void updateMoveBack(float dt);
+    void moveBack();
     void checkMove();
     void checkRemoveAfterAdd(float dt) ;
     bool checkSquareMove(Square *sq);

@@ -34,24 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395833757.330724"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "174"
-         endingLineNumber = "174"
-         landmarkName = "GamePlay::updateMoveDown(float dt)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "820"
-         endingLineNumber = "820"
+         startingLineNumber = "842"
+         endingLineNumber = "842"
          landmarkName = "GamePlay::checkSquareMove(Square *sq)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -60,11 +47,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395833757.330724"
+         timestampString = "395894906.169592"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "218"
-         endingLineNumber = "218"
+         startingLineNumber = "299"
+         endingLineNumber = "299"
          landmarkName = "GamePlay::updateRemove(float dt)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -73,11 +60,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1017"
-         endingLineNumber = "1017"
+         startingLineNumber = "1039"
+         endingLineNumber = "1039"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -86,11 +73,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1026"
-         endingLineNumber = "1026"
+         startingLineNumber = "1048"
+         endingLineNumber = "1048"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -99,11 +86,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "946"
-         endingLineNumber = "946"
+         startingLineNumber = "968"
+         endingLineNumber = "968"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -112,11 +99,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "954"
-         endingLineNumber = "954"
+         startingLineNumber = "976"
+         endingLineNumber = "976"
          landmarkName = "GamePlay::checkTable()"
          landmarkType = "5">
       </FileBreakpoint>
@@ -125,11 +112,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395835800.894987"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "817"
-         endingLineNumber = "817"
+         startingLineNumber = "839"
+         endingLineNumber = "839"
          landmarkName = "GamePlay::checkSquareMoveAble(Square *sq)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -138,11 +125,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395833757.330724"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "486"
-         endingLineNumber = "486"
+         startingLineNumber = "573"
+         endingLineNumber = "573"
          landmarkName = "GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -151,11 +138,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395833757.330724"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "489"
-         endingLineNumber = "489"
+         startingLineNumber = "576"
+         endingLineNumber = "576"
          landmarkName = "GamePlay::ccTouchesEnded(cocos2d::CCSet* touches,cocos2d::CCEvent* event)"
          landmarkType = "5">
       </FileBreakpoint>
@@ -164,11 +151,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "TakasuPoppo/Classes/GamePlay.cpp"
-         timestampString = "395833757.330724"
+         timestampString = "395895533.031646"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "400"
-         endingLineNumber = "400"
+         startingLineNumber = "487"
+         endingLineNumber = "487"
          landmarkName = "GamePlay::ccTouchesBegan(cocos2d::CCSet * touch,cocos2d::CCEvent* event)"
          landmarkType = "5">
       </FileBreakpoint>
